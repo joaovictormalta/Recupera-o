@@ -1,0 +1,235 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <conio.h>
+
+void menu();
+void Cadastro();
+void Editar();
+void Excluir();
+void Listar();
+void Buscar();
+void Ranking();
+
+int fun_cad=0;
+
+typedef struct {
+
+  char nome[50];
+  int idade;
+  int satisfacao;
+  float media;
+
+} cadastro;
+  cadastro func[50];
+
+int compara_funcionario_media(void *pa, void *pb) {
+  cadastro *func1=(cadastro *)pa;
+  cadastro *func2=(cadastro *)pb;
+  return(func1->media > func2->media)?-1:1;
+}
+
+int main(int argc, char *argv[]){
+  int opcao=0;
+
+  printf("\t\tBem Vindo.\n");
+  menu();
+}
+
+void Cadastro() {
+  int i=0,j;
+
+  printf("Quantos funcionarios deseja cadastrar?");
+  scanf("%d",&i);
+  i += fun_cad;
+  for (j = fun_cad; j < i; j++) {
+    printf("Diga o nome de seu funcionario\n");
+    fflush(stdin);
+    scanf("%s",func[j].nome);
+    fflush(stdin);
+    printf("Diga a idade\n");
+    fflush(stdin);
+    scanf("%d",&func[j].idade);
+    fflush(stdin);
+    printf("Diga a satisfacao\n");
+    scanf("%d",&func[j].satisfacao);
+    fflush(stdin);
+    func[j].media = ((func[j].idade)+(func[j].satisfacao))/2;
+  }
+  fun_cad += i;
+  j=0;
+  menu();
+}
+
+void Editar() {
+  int registro;
+  char opcao;
+  printf("Para editar o cadastro de um funcionarios, diga a registro\n");
+  scanf("%d",&registro);
+  printf("Deseja editar a registro %d de %s s/n?\n",registro,func[registro].nome);
+  scanf("%s",&opcao);
+  if (opcao == 's') {
+    printf("Diga o novo nome\n");
+    fflush(stdin);
+    scanf("%s",func[registro].nome);
+    fflush(stdin);
+    printf("Diga a nova idade\n");
+    fflush(stdin);
+    scanf("%d",&func[registro].idade);
+    fflush(stdin);
+    printf("Diga a nova satisfacao\n");
+    scanf("%d",&func[registro].satisfacao);
+    func[registro].media = ((func[registro].idade)+(func[registro].satisfacao))/2;
+  }
+  menu();
+}
+
+void Excluir() {
+  int j=0;
+  char opcao_excluir;
+  char idade[50], satisfacao[50], media[50];
+  printf("Diga o registro do funcionario que deseja excluir\n");
+  scanf("%d",&j);
+  printf("Você deseja excluir o funcionario %s de registro %d?s/n\n",func[j].nome,j);
+  scanf("%s",&opcao_excluir);
+  if (opcao_excluir == 's') {
+    fflush(stdin);
+    strcpy(func[j].nome,"\0");
+    memset(&func[j].idade, 0, sizeof(func[j].idade));
+    memset(&func[j].satisfacao, 0, sizeof(func[j].satisfacao));
+    memset(&func[j].media, 0, sizeof(func[j].media));
+  }
+menu();
+}
+
+void Listar() {
+  int j;
+  for (j = 0; j < fun_cad; j++) {
+
+      printf("registro:%d\n",j);
+      fflush(stdin);
+      puts(func[j].nome);
+      fflush(stdin);
+      printf("idade: %d\n",func[j].idade);
+      fflush(stdin);
+      printf("satisfacao: %d\n",func[j].satisfacao);
+      fflush(stdin);
+      printf("Media de pontuacao: %.1f\n\n",func[j].media);
+  }
+menu();
+}
+
+void Buscar() {
+  int j=0;
+  char pesquisa_nome[50], opcao_editar;
+
+  printf("Digite o nome do funcionario que deseja pesquisar:");
+  scanf("%s",&pesquisa_nome);
+
+  while (strcmp(pesquisa_nome,func[j].nome) != 0) {
+    if (fun_cad == j) {
+      break;
+
+    }
+
+    j++;
+  }
+
+  if (strcmp(pesquisa_nome,func[j].nome) == 0) {
+    printf("registro:%d\n",j);
+    fflush(stdin);
+    puts(func[j].nome);
+    fflush(stdin);
+    printf("idade: %d\n",func[j].idade);
+    fflush(stdin);
+    printf("satisfacao: %d\n",func[j].satisfacao);
+    fflush(stdin);
+    printf("Media de pontuacao: %.1f\n\n",func[j].media);
+    printf("Deseja alterar os dados desse funcionario?\n");
+    scanf("%s",&opcao_editar);
+    if (opcao_editar == 's') Editar();
+  } else {
+    printf("nome invalido\n");
+  }
+  j=0;
+  menu();
+}
+
+
+void Ranking() {
+
+  int j;
+
+  FILE *arq;
+
+  qsort(func,fun_cad,sizeof(cadastro),compara_funcionario_media);
+
+  for (j = 0; j < fun_cad; j++) {
+    printf("Rank:%d\n",j+1);
+    fflush(stdin);
+    puts(func[j].nome);
+    fflush(stdin);
+    printf("idade: %d\n",func[j].idade);
+    fflush(stdin);
+    printf("satisfacao: %d\n",func[j].satisfacao);
+    fflush(stdin);
+    printf("Media de pontuacao: %.1f\n\n",func[j].media);
+
+  }
+  arq=fopen("Rank.txt","w");
+
+  fwrite(func,sizeof(cadastro),fun_cad,arq);
+  fclose(arq);
+menu();
+}
+
+
+
+
+void menu(){
+	int opcao;
+	printf("Digite o que deseja\n");
+  printf("1 - Cadastrar\n");
+  printf("2 - Editar\n");
+  printf("3 - Excluir\n");
+  printf("4 - Listar tudo\n");
+  printf("5 - Pesquisar \n");
+  printf("6 - Ranking\n");
+  printf("7 - Sair\n");
+
+    scanf("%d",&opcao);
+
+    switch (opcao) {
+
+      case 1:
+      Cadastro();
+      break;
+
+      case 2:
+      Editar();
+      break;
+
+      case 3:
+      Excluir();
+      break;
+
+      case 4:
+      Listar();
+      break;
+
+      case 5:
+      Buscar();
+      break;
+
+      case 6:
+      Ranking();
+      break;
+      
+      case 7:
+      system("PAUSE");
+      0;
+      break;
+
+    }
+
+  }
